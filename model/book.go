@@ -1,6 +1,6 @@
 package model
 
-type Books struct {
+type BookList struct {
 	Books []Book
 }
 
@@ -11,7 +11,7 @@ type Book struct {
 	Owner  `json:"Owner"`
 }
 
-type Owners struct {
+type OwnerList struct {
 	Owners []Owner
 }
 
