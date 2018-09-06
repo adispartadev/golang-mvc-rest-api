@@ -1,21 +1,12 @@
 package model
 
 type BookList struct {
-	Books []Book
+	Books []Book `json:"books"`
 }
 
 type Book struct {
 	ID     int    `json:"id"`
 	Name   string `json:"title"`
-	Author string `json:"Author"`
+	Author string `json:"author"`
 	Owner  `json:"Owner"`
-}
-
-type OwnerList struct {
-	Owners []Owner
-}
-
-type Owner struct {
-	ID   int
-	Name string
 }
