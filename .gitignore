@@ -12,4 +12,4 @@
 *.out
 
 # dep package
-./vendor
+vendor
