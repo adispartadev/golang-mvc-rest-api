@@ -1,7 +1,18 @@
 package main
 
-import "fmt"
+import (
+	config "golang-mvc-rest-api/config"
+
+	"log"
+
+	"github.com/gorilla/mux"
+)
 
 func main() {
-	fmt.Println("ok")
+	dbConn, err := config.GetPostgresDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	router := mux.NewRouter()
+
 }
