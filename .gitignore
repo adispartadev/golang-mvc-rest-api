@@ -13,3 +13,6 @@
 
 # dep package
 vendor
+
+**/env.json
+

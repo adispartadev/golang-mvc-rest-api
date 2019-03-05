@@ -1,18 +1,26 @@
 package main
 
 import (
-	config "golang-mvc-rest-api/config"
+	"golang-mvc-rest-api/config"
+	r "golang-mvc-rest-api/router"
 
-	"log"
-
-	"github.com/gorilla/mux"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
-	dbConn, err := config.GetPostgresDB()
-	if err != nil {
-		log.Fatal(err)
-	}
-	router := mux.NewRouter()
+
+	// setup env
+	config.EnvSetup()
+
+	e := echo.New()
+
+	r.InitRoutes(e)
+
+	e.Pre(middleware.RemoveTrailingSlash())
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	e.Logger.Fatal(e.Start(":1323"))
 
 }
