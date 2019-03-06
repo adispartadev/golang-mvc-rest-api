@@ -16,5 +16,6 @@ func GetBooks(c echo.Context) error {
 		Name:  "Jon",
 		Email: "jon@labstack.com",
 	}
+
 	return c.JSON(http.StatusOK, u)
 }

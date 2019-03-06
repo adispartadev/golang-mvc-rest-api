@@ -7,5 +7,6 @@ import (
 )
 
 func SetOwnerRoutes(e *echo.Echo) {
-	e.GET("/owners", controller.GetOwners)
+	// e.GET("/owners", controller.GetOwners)
+	e.GET("/owners/page/:page/limit/:limit", controller.GetOwnersLimit)
 }

@@ -41,6 +41,10 @@ func Connect() {
 		panic(err)
 	}
 
+	DB.SetConnMaxLifetime(time.Duration(10) * time.Second)
+	DB.SetMaxIdleConns(5)
+	DB.SetMaxOpenConns(2)
+
 }
 
 func PingDB() error {
@@ -49,12 +53,4 @@ func PingDB() error {
 		return err
 	}
 	return nil
-}
-
-func GetDBSession() *sql.DB {
-	DB.SetConnMaxLifetime(time.Duration(10) * time.Second)
-	DB.SetMaxIdleConns(5)
-	DB.SetMaxOpenConns(2)
-
-	return DB
 }
