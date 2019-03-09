@@ -1,4 +1,4 @@
-package controller
+package entity
 
 type Response struct {
 	Status Status      `json:"status"`

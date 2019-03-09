@@ -3,7 +3,8 @@ package model
 import (
 	"database/sql"
 	"errors"
-	c "golang-mvc-rest-api/controller"
+	e "golang-mvc-rest-api/entity"
+
 	"golang-mvc-rest-api/db"
 )
 
@@ -12,10 +13,11 @@ type Owner struct {
 	Name string `json:"name"`
 }
 
-func GetAllOwners(pagination c.ResponsePagination) ([]Owner, error) {
+func GetAllOwners(pagination e.ResponsePagination) ([]Owner, error) {
+	var owner Owner
 	var ownerList []Owner
 
-	rows, err := db.DB.Query("SELECT * FROM owners")
+	rows, err := db.DB.Query(`SELECT * FROM owners order by id desc offset $1 limit $2`, pagination.Offset, pagination.ItemInPage)
 	if err != nil {
 		return ownerList, err
 	}

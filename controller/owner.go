@@ -1,6 +1,7 @@
 package controller
 
 import (
+	e "golang-mvc-rest-api/entity"
 	"golang-mvc-rest-api/model"
 	"net/http"
 	"regexp"
@@ -9,19 +10,23 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func GetOwners(c echo.Context) error {
+var (
+	EmptyValue = make([]int, 0)
+)
 
-	res, err := model.GetAllOwners()
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, SetResponse(http.StatusBadRequest, err.Error(), EmptyValue))
-	}
+// func GetOwners(c echo.Context) error {
 
-	if len(res) == 0 {
-		return c.JSON(http.StatusOK, SetResponse(http.StatusOK, "owners is empty", EmptyValue))
-	}
+// 	res, err := model.GetAllOwners()
+// 	if err != nil {
+// 		return c.JSON(http.StatusBadRequest, e.SetResponse(http.StatusBadRequest, err.Error(), EmptyValue))
+// 	}
 
-	return c.JSON(http.StatusOK, SetResponse(http.StatusOK, "", res))
-}
+// 	if len(res) == 0 {
+// 		return c.JSON(http.StatusOK, e.SetResponse(http.StatusOK, "owners is empty", EmptyValue))
+// 	}
+
+// 	return c.JSON(http.StatusOK, e.SetResponse(http.StatusOK, "", res))
+// }
 
 func GetOwnersLimit(c echo.Context) error {
 	r := regexp.MustCompile("^[0-9]+$")
@@ -43,13 +48,13 @@ func GetOwnersLimit(c echo.Context) error {
 
 	totalOwner, err := model.CountOwners()
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, SetResponse(http.StatusBadRequest, err.Error(), EmptyValue))
+		return c.JSON(http.StatusBadRequest, e.SetResponse(http.StatusBadRequest, err.Error(), EmptyValue))
 	}
 
-	pagination := HandlePagination(page, limit, totalOwner)
+	pagination := e.HandlePagination(page, limit, totalOwner)
 	owners, err := model.GetAllOwners(pagination)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, SetResponse(http.StatusBadRequest, err.Error(), EmptyValue))
+		return c.JSON(http.StatusBadRequest, e.SetResponse(http.StatusBadRequest, err.Error(), EmptyValue))
 	}
 
 	return c.JSON(http.StatusOK, owners)
