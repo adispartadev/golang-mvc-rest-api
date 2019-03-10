@@ -3,19 +3,15 @@ package model
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	e "golang-mvc-rest-api/entity"
 
 	"golang-mvc-rest-api/db"
 )
 
-type Owner struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
-
-func GetAllOwners(pagination e.ResponsePagination) ([]Owner, error) {
-	var owner Owner
-	var ownerList []Owner
+func GetAllOwners(pagination e.ResponsePagination) ([]e.Owner, error) {
+	var owner e.Owner
+	var ownerList []e.Owner
 
 	rows, err := db.DB.Query(`SELECT * FROM owners order by id desc offset $1 limit $2`, pagination.Offset, pagination.ItemInPage)
 	if err != nil {
@@ -52,4 +48,26 @@ func CountOwners() (int, error) {
 	}
 
 	return countOwners, nil
+}
+
+func InsertOwner(owner *e.Owner) error {
+	const query = `INSERT INTO owners (name) VALUES ($1)`
+	tx, err := db.DB.Begin()
+	if err != nil {
+		return err
+	}
+
+	res, err := tx.Exec(query, owner.Name)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	fmt.Println("=======print res======")
+	fmt.Printf("%+v\n", res)
+	fmt.Println("=============")
+
+	tx.Commit()
+	return nil
+
 }

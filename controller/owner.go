@@ -51,11 +51,31 @@ func GetOwnersLimit(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, e.SetResponse(http.StatusBadRequest, err.Error(), EmptyValue))
 	}
 
+	if totalOwner == 0 {
+		return c.JSON(http.StatusBadRequest, e.SetResponse(http.StatusBadRequest, err.Error(), EmptyValue))
+	}
+
 	pagination := e.HandlePagination(page, limit, totalOwner)
 	owners, err := model.GetAllOwners(pagination)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, e.SetResponse(http.StatusBadRequest, err.Error(), EmptyValue))
 	}
 
-	return c.JSON(http.StatusOK, owners)
+	return c.JSON(http.StatusOK, e.SetPaginationResponse(http.StatusOK, "success", owners, &pagination))
+}
+
+func AddOwner(c echo.Context) error {
+	var owner e.Owner
+	err := c.Bind(&owner)
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, e.SetResponse(http.StatusBadRequest, err.Error(), EmptyValue))
+	}
+
+	err = model.InsertOwner(&owner)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, e.SetResponse(http.StatusBadRequest, err.Error(), EmptyValue))
+	}
+
+	return c.JSON(http.StatusCreated, "ok")
+
 }
