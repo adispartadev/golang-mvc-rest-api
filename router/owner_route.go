@@ -1,7 +1,6 @@
 package router
 
 import (
-	"fmt"
 	"golang-mvc-rest-api/controller"
 	"net/http"
 	"regexp"
@@ -35,13 +34,6 @@ func SetOwnerRoutes(e *echo.Echo) {
 	e.PUT("/owners/:id", controller.EditOwner, paramValidation)
 	e.GET("/owners", func(c echo.Context) error {
 		req := c.Request()
-		fmt.Println("=============")
-		fmt.Printf("%+v\n", req.Proto)
-		fmt.Printf("%+v\n", req.Host)
-		fmt.Printf("%+v\n", req.RemoteAddr)
-		fmt.Printf("%+v\n", req.Method)
-		fmt.Printf("%+v\n", req.URL.Path)
-		fmt.Println("=============")
 		return c.JSON(http.StatusOK, "ok")
 	})
 }
