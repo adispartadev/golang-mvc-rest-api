@@ -8,4 +8,5 @@ import (
 
 func SetUserRoutes(e *echo.Echo) {
 	e.POST("/users/signup", controller.SignUp)
+	e.POST("/users/login", controller.Login)
 }
