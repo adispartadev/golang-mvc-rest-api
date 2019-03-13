@@ -36,6 +36,7 @@ func CheckPasswordHash(password, hash string) bool {
 }
 
 func SignUp(c echo.Context) error {
+
 	var user e.User
 	err := c.Bind(&user)
 	if err != nil {
@@ -59,6 +60,7 @@ func SignUp(c echo.Context) error {
 }
 
 func Login(c echo.Context) error {
+
 	var user e.User
 	err := c.Bind(&user)
 	if err != nil {
