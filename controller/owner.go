@@ -4,7 +4,6 @@ import (
 	e "golang-mvc-rest-api/entity"
 	"golang-mvc-rest-api/model"
 	"net/http"
-	"regexp"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
@@ -29,18 +28,8 @@ var (
 // }
 
 func GetOwnersLimit(c echo.Context) error {
-	r := regexp.MustCompile("^[0-9]+$")
-	tmpPage := c.Param("page")
-	tmpLimit := c.Param("limit")
-	if !r.MatchString(tmpPage) {
-		return c.JSON(http.StatusBadRequest, "check your payload for page")
-	}
-	if !r.MatchString(tmpLimit) {
-		return c.JSON(http.StatusBadRequest, "check your payload for limit")
-	}
-
-	page, err := strconv.Atoi(tmpPage)
-	limit, err := strconv.Atoi(tmpLimit)
+	page, err := strconv.Atoi(c.Param("page"))
+	limit, err := strconv.Atoi(c.Param("limit"))
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, "please check page and limit value")
@@ -76,6 +65,42 @@ func AddOwner(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, e.SetResponse(http.StatusBadRequest, err.Error(), EmptyValue))
 	}
 
-	return c.JSON(http.StatusCreated, "ok")
+	return c.JSON(http.StatusCreated, e.SetResponse(http.StatusCreated, "ok", EmptyValue))
 
+}
+
+func RemoveOwner(c echo.Context) error {
+	ownerID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, e.SetResponse(http.StatusBadRequest, err.Error(), EmptyValue))
+	}
+
+	err = model.DeleteOwner(ownerID)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, e.SetResponse(http.StatusBadRequest, err.Error(), EmptyValue))
+	}
+
+	return c.JSON(http.StatusAccepted, "ok")
+}
+
+func EditOwner(c echo.Context) error {
+	var owner e.Owner
+	ownerID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, e.SetResponse(http.StatusBadRequest, err.Error(), EmptyValue))
+	}
+
+	err = c.Bind(&owner)
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, e.SetResponse(http.StatusUnprocessableEntity, err.Error(), EmptyValue))
+	}
+
+	owner.ID = ownerID
+
+	err = model.UpdateOwner(&owner)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, e.SetResponse(http.StatusBadRequest, err.Error(), EmptyValue))
+	}
+
+	return c.JSON(http.StatusOK, e.SetResponse(http.StatusOK, "edited", EmptyValue))
 }

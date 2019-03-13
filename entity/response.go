@@ -3,7 +3,7 @@ package entity
 type Response struct {
 	Status     Status              `json:"status"`
 	Data       interface{}         `json:"data"`
-	Pagination *ResponsePagination `json:"page_detail"`
+	Pagination *ResponsePagination `json:"pagination,omitempty"`
 }
 
 type Status struct {

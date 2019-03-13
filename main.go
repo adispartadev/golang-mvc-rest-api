@@ -19,10 +19,16 @@ func main() {
 
 	r.InitRoutes(e)
 
+	// e.Use(middleware.CORS())
+	e.Use(middleware.Secure())
+	e.Use(middleware.RequestID())
 	e.Use(middleware.Logger())
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.Recover())
+	// e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
+	// 	SigningKey: []byte(os.Getenv("SECRET_KEY")),
+	// }))
 
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.StartTLS(":1323", "cert.pem", "key.pem"))
 
 }

@@ -3,7 +3,6 @@ package model
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	e "golang-mvc-rest-api/entity"
 
 	"golang-mvc-rest-api/db"
@@ -57,17 +56,82 @@ func InsertOwner(owner *e.Owner) error {
 		return err
 	}
 
-	res, err := tx.Exec(query, owner.Name)
+	_, err = tx.Exec(query, owner.Name)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	fmt.Println("=======print res======")
-	fmt.Printf("%+v\n", res)
-	fmt.Println("=============")
+	tx.Commit()
+	return nil
+
+}
+
+func DeleteOwner(ownerID int) error {
+	const query = `DELETE FROM owners WHERE id = $1`
+	tx, err := db.DB.Begin()
+	if err != nil {
+		return err
+	}
+
+	res, err := tx.Exec(query, ownerID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if rowsAffected == 0 {
+		tx.Rollback()
+		return errors.New("data is not found")
+	}
+
+	if rowsAffected > 1 {
+		return errors.New("Strange behaviour. Total affected : " + string(rowsAffected))
+	}
 
 	tx.Commit()
+	return nil
+
+}
+
+func UpdateOwner(owner *e.Owner) error {
+
+	const query = `UPDATE owners SET name = $2 WHERE id = $1`
+	tx, err := db.DB.Begin()
+	if err != nil {
+		return err
+	}
+
+	res, err := tx.Exec(query, owner.ID, owner.Name)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if rowsAffected == 0 {
+		tx.Rollback()
+		return errors.New("data is not found")
+	}
+
+	if rowsAffected > 1 {
+		tx.Rollback()
+		return errors.New("Strange behaviour. Total affected is : " + string(rowsAffected))
+	}
+
+	tx.Commit()
+
 	return nil
 
 }
