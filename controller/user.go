@@ -51,7 +51,7 @@ func Login(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "password is not valid")
 	}
 
-	token, err := m.Decode(userData.Username)
+	token, err := m.Encode(userData.Username)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}

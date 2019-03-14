@@ -2,6 +2,7 @@ package router
 
 import (
 	"golang-mvc-rest-api/controller"
+	m "golang-mvc-rest-api/middleware"
 	"net/http"
 	"regexp"
 
@@ -28,12 +29,11 @@ func paramValidation(next echo.HandlerFunc) echo.HandlerFunc {
 
 func SetOwnerRoutes(e *echo.Echo) {
 	// e.GET("/owners", controller.GetOwners)
-	e.GET("/owners/page/:page/limit/:limit", controller.GetOwnersLimit, paramValidation)
+	e.GET("/owners/page/:page/limit/:limit", controller.GetOwnersLimit, paramValidation, m.IsAuthorized)
 	e.POST("/owners", controller.AddOwner)
 	e.DELETE("/owners/:id", controller.RemoveOwner, paramValidation)
 	e.PUT("/owners/:id", controller.EditOwner, paramValidation)
 	e.GET("/owners", func(c echo.Context) error {
-		req := c.Request()
 		return c.JSON(http.StatusOK, "ok")
 	})
 }
