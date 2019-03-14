@@ -29,7 +29,12 @@ func SignUp(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, "ok")
+	token, err := m.Encode(user.Username)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, e.SetResponse(http.StatusOK, "success", token))
 
 }
 
