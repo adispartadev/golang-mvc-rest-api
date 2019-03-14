@@ -29,11 +29,13 @@ func paramValidation(next echo.HandlerFunc) echo.HandlerFunc {
 
 func SetOwnerRoutes(e *echo.Echo) {
 	// e.GET("/owners", controller.GetOwners)
-	e.GET("/owners/page/:page/limit/:limit", controller.GetOwnersLimit, paramValidation, m.IsAuthorized)
-	e.POST("/owners", controller.AddOwner)
-	e.DELETE("/owners/:id", controller.RemoveOwner, paramValidation)
-	e.PUT("/owners/:id", controller.EditOwner, paramValidation)
-	e.GET("/owners", func(c echo.Context) error {
+	r := e.Group("/owners", m.IsAuthorized)
+
+	r.GET("/page/:page/limit/:limit", controller.GetOwnersLimit, paramValidation)
+	r.POST("/", controller.AddOwner)
+	r.DELETE("/:id", controller.RemoveOwner, paramValidation)
+	r.PUT("/:id", controller.EditOwner, paramValidation)
+	r.GET("/", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, "ok")
 	})
 }
