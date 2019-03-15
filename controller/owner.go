@@ -1,10 +1,11 @@
 package controller
 
 import (
-	"fmt"
 	e "golang-mvc-rest-api/entity"
 	"golang-mvc-rest-api/model"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
@@ -109,11 +110,35 @@ func EditOwner(c echo.Context) error {
 func AddOwnerImage(c echo.Context) error {
 	form, err := c.MultipartForm()
 	if err != nil {
-		return err
+		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	for k, v := range form.Value {
-		fmt.Println(k)
-		fmt.Println(v)
+
+	files := form.File
+
+	for name, _ := range files {
+
+		file, err := c.FormFile(name)
+
+		src, err := file.Open()
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		defer src.Close()
+
+		uploadFilePath := "./tmp/" + file.Filename
+
+		// Destination
+		dst, err := os.Create(uploadFilePath)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		defer dst.Close()
+
+		// Copy
+		if _, err = io.Copy(dst, src); err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
 	}
 
 	return c.JSON(http.StatusOK, "ok")
