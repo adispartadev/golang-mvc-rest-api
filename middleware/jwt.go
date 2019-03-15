@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,30 +11,39 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-const APPLICATION_NAME = "golang-mvc-rest-api"
-const LOGIN_EXPIRATION_DURATION = time.Duration(1) * time.Hour
-
-var JWT_SECRET_KEY = os.Getenv("JWT_SECRET_KEY")
-var JWT_SIGNING_METHOD = jwt.SigningMethodHS256
+var APPLICATION_NAME = "golang-mvc-rest-api"
+var LOGIN_EXPIRATION_DURATION int64
+var REFRESH_TOKEN_DURATION int64
 
 type JWTClaim struct {
 	jwt.StandardClaims
 	Username string `json:"username"`
 }
 
-func Encode(username string) (string, error) {
+func init() {
+	LOGIN_EXPIRATION_DURATION = time.Now().Add(100 * time.Second).Unix()
+	REFRESH_TOKEN_DURATION = time.Now().Add(10 * time.Minute).Unix()
+}
+
+func Encode(username string, duration int64, secretKey string) (string, error) {
+
+	fmt.Println("======secret key=======")
+	fmt.Printf("%+v\n", secretKey)
+	fmt.Printf("%+v\n", duration)
+	fmt.Println("=============")
+
 	claims := JWTClaim{
 		Username: username,
 		StandardClaims: jwt.StandardClaims{
 			Issuer:    APPLICATION_NAME,
-			ExpiresAt: time.Now().Add(LOGIN_EXPIRATION_DURATION).Unix(),
+			ExpiresAt: duration,
 			IssuedAt:  time.Now().Unix(),
 		},
 	}
 
-	token := jwt.NewWithClaims(JWT_SIGNING_METHOD, claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	t, err := token.SignedString([]byte(JWT_SECRET_KEY))
+	t, err := token.SignedString([]byte(secretKey))
 	if err != nil {
 		return "", err
 	}
@@ -56,27 +64,32 @@ func IsAuthorized(next echo.HandlerFunc) echo.HandlerFunc {
 		tokenString1 := strings.Replace(authHeader, "Bearer", " ", -1)
 		tokenString2 := strings.TrimSpace(tokenString1)
 
-		fmt.Println("======token string=======")
-		fmt.Printf("%+v\n", tokenString2)
-		fmt.Println("=============")
-
 		token, err := jwt.Parse(tokenString2, func(token *jwt.Token) (interface{}, error) {
-			method, ok := token.Method.(*jwt.SigningMethodHMAC)
-			if !ok {
-				return nil, errors.New("signing method is invalid")
-			}
-			if method != JWT_SIGNING_METHOD {
-				return nil, errors.New("signing method is invalid")
-			}
-			return []byte(JWT_SECRET_KEY), nil
+			return []byte(os.Getenv("JWT_SECRET_KEY")), nil
 		})
 
+		if !token.Valid {
+			return c.JSON(http.StatusUnauthorized, "token is not valid")
+		}
+
+		if err == jwt.ErrSignatureInvalid {
+			return c.JSON(http.StatusUnauthorized, err.Error())
+		}
+
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSON(http.StatusUnauthorized, err.Error())
+		}
+
+		method, ok := token.Method.(*jwt.SigningMethodHMAC)
+		if !ok {
+			return c.JSON(http.StatusBadRequest, "signing method is invalid")
+		}
+		if method != jwt.SigningMethodHS256 {
+			return c.JSON(http.StatusBadRequest, "signing method is invalid")
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok || !token.Valid {
+		if !ok {
 			return c.JSON(http.StatusBadRequest, "token payload is invalid")
 		}
 		c.Set("userInfo", claims)
