@@ -38,4 +38,5 @@ func SetOwnerRoutes(e *echo.Echo) {
 	r.GET("/", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, "ok")
 	})
+	r.POST("/:id/upload", controller.AddOwnerImage)
 }

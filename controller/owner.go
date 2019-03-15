@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	e "golang-mvc-rest-api/entity"
 	"golang-mvc-rest-api/model"
 	"net/http"
@@ -103,4 +104,17 @@ func EditOwner(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, e.SetResponse(http.StatusOK, "edited", EmptyValue))
+}
+
+func AddOwnerImage(c echo.Context) error {
+	form, err := c.MultipartForm()
+	if err != nil {
+		return err
+	}
+	for k, v := range form.Value {
+		fmt.Println(k)
+		fmt.Println(v)
+	}
+
+	return c.JSON(http.StatusOK, "ok")
 }

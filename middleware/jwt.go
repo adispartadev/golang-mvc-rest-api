@@ -21,7 +21,7 @@ type JWTClaim struct {
 }
 
 func init() {
-	LOGIN_EXPIRATION_DURATION = time.Now().Add(100 * time.Second).Unix()
+	LOGIN_EXPIRATION_DURATION = time.Now().Add(1 * time.Hour).Unix()
 	REFRESH_TOKEN_DURATION = time.Now().Add(10 * time.Minute).Unix()
 }
 
