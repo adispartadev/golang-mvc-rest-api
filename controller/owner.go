@@ -108,37 +108,38 @@ func EditOwner(c echo.Context) error {
 }
 
 func AddOwnerImage(c echo.Context) error {
-	form, err := c.MultipartForm()
+
+	maxFileSize := 1000000
+
+	file, err := c.FormFile("owner_profile")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	files := form.File
+	if file.Header["Content-Type"][0] != "image/png" {
+		return c.JSON(http.StatusBadRequest, "only able to upload png file")
+	}
 
-	for name, _ := range files {
+	if file.Size > int64(maxFileSize) {
+		return c.JSON(http.StatusBadRequest, "file size can't be more than 1 MB")
+	}
 
-		file, err := c.FormFile(name)
+	src, err := file.Open()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	defer src.Close()
 
-		src, err := file.Open()
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, err.Error())
-		}
-		defer src.Close()
+	uploadFilePath := "./tmp/" + file.Filename
 
-		uploadFilePath := "./tmp/" + file.Filename
+	dst, err := os.Create(uploadFilePath)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	defer dst.Close()
 
-		// Destination
-		dst, err := os.Create(uploadFilePath)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, err.Error())
-		}
-		defer dst.Close()
-
-		// Copy
-		if _, err = io.Copy(dst, src); err != nil {
-			return c.JSON(http.StatusBadRequest, err.Error())
-		}
-
+	if _, err = io.Copy(dst, src); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, "ok")

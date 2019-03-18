@@ -17,4 +17,7 @@ vendor
 **/env.json
 
 *.pem
+*.png
+*.jpg
+*.jpeg
 
